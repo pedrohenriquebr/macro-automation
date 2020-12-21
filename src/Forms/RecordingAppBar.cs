@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Runtime.InteropServices;
 using MacroAutomation.Core;
 
@@ -235,7 +234,7 @@ namespace MacroAutomation.Forms
             this.events.Add(ev);
         }
 
-        public void KeyboardListener(object sender, EventHook.KeyInputEventArgs e)
+        public void KeyboardListener(object sender, KeyInputEventArgs e)
         {
             Event ev = new Event();
             Console.WriteLine(string.Format("KeyInput event {0} at point {1},{2}", e.KeyData.EventType, e.KeyData.Keyname, e.KeyData.UnicodeCharacter));
@@ -263,7 +262,9 @@ namespace MacroAutomation.Forms
             this.BackToMain();
         }
 
-
+        /// <summary>
+        /// Adapted from https://www.codeproject.com/Articles/6741/AppBar-using-C
+        /// </summary>
         #region Appbar
         [StructLayout(LayoutKind.Sequential)]
         struct RECT
