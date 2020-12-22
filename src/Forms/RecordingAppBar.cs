@@ -1,4 +1,5 @@
 ﻿using EventHook;
+using EventHook.Hooks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,7 +37,6 @@ namespace MacroAutomation.Forms
             this.recorder.AddMouseListener(MouseListener);
             this.recorder.AddKeyBoardListener(KeyboardListener);
         }
-
 
         public List<Event> GetEvents()
         {
@@ -204,7 +204,7 @@ namespace MacroAutomation.Forms
             }
 
             var eventMessage = e.Message.ToString();
-            if (this.Bounds.Contains(new Point(e.Point.x, e.Point.y)))
+            if (this.Bounds.Contains(new System.Drawing.Point(e.Point.x, e.Point.y)))
             {
                 Console.WriteLine(string.Format("Rejected Mouse event {0} at point {1},{2}", eventMessage, e.Point.x, e.Point.y));
                 return;
@@ -213,14 +213,22 @@ namespace MacroAutomation.Forms
             Console.WriteLine(string.Format("Mouse event {0} at point {1},{2}", eventMessage, e.Point.x, e.Point.y));
             Event ev = new Event();
 
-            switch (eventMessage)
+            switch (e.Message)
             {
 
-                case "WM_LBUTTONDOWN":
+                case MouseMessages.WM_LBUTTONUP:
+                    ev.Name = EventType.MOUSE_LBUTTONUP;
+                    break;
+
+                case MouseMessages.WM_LBUTTONDOWN:
                     ev.Name = EventType.MOUSE_LBUTTONDOWN;
                     break;
 
-                case "WM_RBUTTONDOWN":
+                case MouseMessages.WM_RBUTTONUP:
+                    ev.Name = EventType.MOUSE_RBUTTONUP;
+                    break;
+
+                case MouseMessages.WM_RBUTTONDOWN:
                     ev.Name = EventType.MOUSE_RBUTTONDOWN;
                     break;
 
@@ -341,7 +349,7 @@ namespace MacroAutomation.Forms
         private bool fBarRegistered = false;
 
         [DllImport("SHELL32", CallingConvention = CallingConvention.StdCall)]
-        static extern uint SHAppBarMessage(int dwMessage,  ref APPBARDATA pData);
+        static extern uint SHAppBarMessage(int dwMessage, ref APPBARDATA pData);
         [DllImport("USER32")]
         static extern int GetSystemMetrics(int Index);
         [DllImport("User32.dll", ExactSpelling = true,
@@ -352,7 +360,7 @@ namespace MacroAutomation.Forms
         private static extern int RegisterWindowMessage(string msg);
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         private static extern bool SetWindowPos
-            (IntPtr hWnd,  IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+            (IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
         private int uCallBack;
 
