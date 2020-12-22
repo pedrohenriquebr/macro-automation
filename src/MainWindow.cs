@@ -32,7 +32,7 @@ namespace MacroAutomation
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void run_Click(object sender, EventArgs e)
         {
 
 
@@ -136,37 +136,36 @@ namespace MacroAutomation
             dt.Columns.Add(" ");
             dt.Columns.Add("  ");
 
-            var mouseEvents = new EventType[] { EventType.MOUSE_LBUTTONDOWN, EventType.MOUSE_RBUTTONDOWN };
-            var keyBoardEvents = new EventType[] { EventType.KEYEVENT_DOWN, EventType.KEYEVENT_UP };
-
             foreach (Event item in items)
             {
                 DataRow row = dt.NewRow();
-                if (mouseEvents.Contains(item.Name))
-                {
-                    row["Name"] = "Mouse";
-                    row[2] = string.Format("X={0}", item.MouseX);
-                    row[3] = string.Format("Y={0}", item.MouseY);
-                }
-                else if (keyBoardEvents.Contains(item.Name))
-                {
-                    row["Name"] = "Keyboard";
-                    row[2] = item.Keyname;
-                }
-
 
                 switch (item.Name)
                 {
+                    case EventType.MOUSE_LBUTTONUP:
+                        continue;
                     case EventType.MOUSE_LBUTTONDOWN:
                         row["Type"] = "Left Click";
+                        row["Name"] = "Mouse";
+                        row[2] = string.Format("X={0}", item.MouseX);
+                        row[3] = string.Format("Y={0}", item.MouseY);
                         break;
-
+                    
+                    case EventType.MOUSE_RBUTTONUP:
+                        continue;
                     case EventType.MOUSE_RBUTTONDOWN:
                         row["Type"] = "Right Click";
+                        row["Name"] = "Mouse";
+                        row[2] = string.Format("X={0}", item.MouseX);
+                        row[3] = string.Format("Y={0}", item.MouseY);
                         break;
-
+                    
+                    case EventType.KEYEVENT_UP:
+                        continue;
                     case EventType.KEYEVENT_DOWN:
                         row["Type"] = "KeyDown";
+                        row["Name"] = "Keyboard";
+                        row[2] = item.Keyname;
                         break;
                 }
 
