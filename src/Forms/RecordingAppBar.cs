@@ -238,7 +238,7 @@ namespace MacroAutomation.Forms
 
             ev.MouseX = e.Point.x;
             ev.MouseY = e.Point.y;
-            ev.TimeInMillis = DateTime.Now.Millisecond;
+            ev.TimeInMillis = DateTimeOffset.Now.ToUnixTimeMilliseconds();
             this.events.Add(ev);
         }
 

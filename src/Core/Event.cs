@@ -29,6 +29,6 @@ namespace MacroAutomation.Core
         //KeyInput event variables 
         public string Keyname { get; set;  }
         public string UnicodeCharacter { get; set; }
-        public int TimeInMillis { set; get; }
+        public long TimeInMillis { set; get; }
     }
 }
