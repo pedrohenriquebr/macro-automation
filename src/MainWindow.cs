@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,6 +12,7 @@ using System.IO;
 using System.Globalization;
 using MacroAutomation.Forms;
 using MacroAutomation.Core;
+using System.Threading;
 
 namespace MacroAutomation
 {
@@ -26,15 +28,146 @@ namespace MacroAutomation
             InitializeComponent();
         }
 
-
-        private void label1_Click(object sender, EventArgs e)
+        /// </summary>
+        /// Adapted from https://www.codeproject.com/Articles/5264831/How-to-Send-Inputs-using-Csharp
+        /// <summary>
+        [StructLayout(LayoutKind.Sequential)]
+        public struct HARDWAREINPUT
         {
-
+            public uint uMsg;
+            public ushort wParamL;
+            public ushort wParamH;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct KEYBDINPUT
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MOUSEINPUT
+        {
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint dwFlags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct INPUTUNION
+        {
+            [FieldOffset(0)] public MOUSEINPUT mi;
+            [FieldOffset(0)] public KEYBDINPUT ki;
+            [FieldOffset(0)] public HARDWAREINPUT hi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct INPUT
+        {
+            public int type;
+            public INPUTUNION u;
+        }
+        public enum InputType
+        {
+            Mouse = 0,
+            Keyboard = 1,
+            Hardware = 2
+        }
+
+        public enum KeyEventF
+        {
+            KeyDown = 0x0000,
+            ExtendedKey = 0x0001,
+            KeyUp = 0x0002,
+            Unicode = 0x0004,
+            Scancode = 0x0008
+        }
+
+        public enum MouseEventF
+        {
+            Absolute = 0x8000,
+            HWheel = 0x01000,
+            Move = 0x0001,
+            MoveNoCoalesce = 0x2000,
+            LeftDown = 0x0002,
+            LeftUp = 0x0004,
+            RightDown = 0x0008,
+            RightUp = 0x0010,
+            MiddleDown = 0x0020,
+            MiddleUp = 0x0040,
+            VirtualDesk = 0x4000,
+            Wheel = 0x0800,
+            XDown = 0x0080,
+            XUp = 0x0100
+        }
+
+        [DllImport("User32.dll", SetLastError = true)]
+        private static extern uint SendInput(uint cInputs, INPUT[] pInputs, int cbSize);
+
+
+        [DllImport("User32.dll")]
+        private static extern IntPtr GetMessageExtraInfo();
+
+        [DllImport("User32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
 
         private void run_Click(object sender, EventArgs e)
         {
 
+
+            foreach (Event evt in this.events)
+            {
+                List<INPUT> inputs = new List<INPUT>();
+                switch (evt.Name)
+                {
+                    case EventType.MOUSE_LBUTTONUP:
+                        SetCursorPos((int)evt.MouseX, (int)evt.MouseY);
+                        inputs.Add(new INPUT
+                        {
+                            type = (int)InputType.Mouse,
+                            u = new INPUTUNION
+                            {
+                                mi = new MOUSEINPUT
+                                {
+                                    dx = 0,
+                                    dy = 0,
+                                    dwFlags = (uint)MouseEventF.LeftUp,
+                                    dwExtraInfo = GetMessageExtraInfo()
+                                }
+                            }
+                        });
+                        break;
+                    case EventType.MOUSE_LBUTTONDOWN:
+                        SetCursorPos((int)evt.MouseX, (int)evt.MouseY);
+                        inputs.Add(new INPUT
+                        {
+                            type = (int)InputType.Mouse,
+                            u = new INPUTUNION
+                            {
+                                mi = new MOUSEINPUT
+                                {
+                                    dx = 0,
+                                    dy = 0,
+                                    dwFlags = (uint)MouseEventF.LeftDown,
+                                    dwExtraInfo = GetMessageExtraInfo()
+                                }
+                            }
+                        });
+                        break;
+                    default:
+                        continue;
+                }
+
+                
+                SendInput((uint)inputs.ToArray().Length, inputs.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+            }
 
         }
 
@@ -124,6 +257,7 @@ namespace MacroAutomation
             this.exportBtn.Enabled = true;
         }
 
+
         public static DataTable ConvertToDataTable(List<Event> items)
         {
             DataTable dt = new DataTable();
@@ -150,7 +284,7 @@ namespace MacroAutomation
                         row[2] = string.Format("X={0}", item.MouseX);
                         row[3] = string.Format("Y={0}", item.MouseY);
                         break;
-                    
+
                     case EventType.MOUSE_RBUTTONUP:
                         continue;
                     case EventType.MOUSE_RBUTTONDOWN:
@@ -159,7 +293,7 @@ namespace MacroAutomation
                         row[2] = string.Format("X={0}", item.MouseX);
                         row[3] = string.Format("Y={0}", item.MouseY);
                         break;
-                    
+
                     case EventType.KEYEVENT_UP:
                         continue;
                     case EventType.KEYEVENT_DOWN:

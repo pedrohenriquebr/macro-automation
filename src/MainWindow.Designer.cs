@@ -49,7 +49,6 @@ namespace MacroAutomation
             // 
             // RunBtn
             // 
-            this.RunBtn.Enabled = false;
             this.RunBtn.Font = new System.Drawing.Font("Segoe UI", 9.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.RunBtn.Location = new System.Drawing.Point(270, 38);
             this.RunBtn.Name = "RunBtn";
