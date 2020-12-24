@@ -120,7 +120,13 @@ namespace MacroAutomation
 
         private void run_Click(object sender, EventArgs e)
         {
+            const int DELAY_MILLISECONDS = 1000;
+            const int DELAY_TO_RUN_MILLISECONDS = 1000;
+            
+            Thread.Sleep(DELAY_MILLISECONDS);
+            this.Visible = false;
 
+            Thread.Sleep(DELAY_TO_RUN_MILLISECONDS);
 
             foreach (Event evt in this.events)
             {
@@ -165,10 +171,11 @@ namespace MacroAutomation
                         continue;
                 }
 
-                
                 SendInput((uint)inputs.ToArray().Length, inputs.ToArray(), Marshal.SizeOf(typeof(INPUT)));
             }
 
+            Thread.Sleep(DELAY_MILLISECONDS);
+            this.Visible = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
